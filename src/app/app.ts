@@ -71,7 +71,7 @@ import { Kit } from './models/kit.model';
         (order)="preloadOrderForm($event)" />
     }
 
-    <a href="https://wa.me/221779061173" 
+    <a href="https://wa.me/221771183954?text=Bonjour%20Sa%20Ndugu%20!%20Je%20souhaite%20avoir%20des%20informations%20sur%20vos%20kits%20de%20plats." 
        target="_blank" 
        class="whatsapp-floating-btn" 
        aria-label="Discuter sur WhatsApp">
@@ -143,7 +143,7 @@ import { Kit } from './models/kit.model';
       transform: translateY(-2px);
     }
 
-    /* Hero Section - ALIGNÉ SUR LE DOSSIER PUBLIC (sans /assets) */
+    /* Hero Section - Alignée sur le dossier public */
     .hero-section {
       height: 75vh;
       background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65)), url('/images/thieboudienne.jpg') center/cover no-repeat;
@@ -171,14 +171,14 @@ import { Kit } from './models/kit.model';
     }
     .btn-hero:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0, 135, 81, 0.6); }
 
-    /* Animations fluides */
+    /* Animations */
     .fade-in { animation: fadeIn 1s ease-out forwards; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(25px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Style Global du Footer */
+    /* Footer */
     .footer {
       background: #111412;
       color: #aabbb0;
@@ -231,6 +231,22 @@ import { Kit } from './models/kit.model';
     }
     .whatsapp-floating-btn:hover { transform: scale(1.1); }
     .whatsapp-icon { width: 35px; height: 35px; }
+
+    /* --- RESPONSIVE SMARTPHONE --- */
+    @media (max-width: 768px) {
+      .nav-container { padding: 10px 15px; }
+      .logo { font-size: 1.5rem; }
+      .nav-links { gap: 15px; }
+      .nav-links a { font-size: 0.9rem; }
+      .btn-nav-order { padding: 6px 15px; }
+      .hero-section { height: 60vh; padding: 0 15px; }
+      .hero-content h1 { font-size: 2rem; }
+      .hero-content p { font-size: 1rem; margin-bottom: 25px; }
+      .btn-hero { padding: 12px 30px; font-size: 1rem; }
+      .footer-container { grid-template-columns: 1fr; gap: 30px; }
+      .whatsapp-floating-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; }
+      .whatsapp-icon { width: 28px; height: 28px; }
+    }
   `]
 })
 export class App {

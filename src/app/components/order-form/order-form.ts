@@ -23,17 +23,17 @@ import { Kit } from '../../models/kit.model';
           <div class="form-grid">
             <div class="form-group">
               <label for="name">Nom Complet *</label>
-              <input type="text" id="name" name="name" [(ngModel)]="customerName" required placeholder="Ex: Moussa Diouf">
+              <input type="text" id="name" name="name" [(ngModel)]="customerName" required placeholder="Ex: Pathe Balde">
             </div>
 
             <div class="form-group">
               <label for="phone">Numéro de Téléphone *</label>
-              <input type="tel" id="phone" name="phone" [(ngModel)]="customerPhone" required placeholder="Ex: +221 77 906 11 73">
+              <input type="tel" id="phone" name="phone" [(ngModel)]="customerPhone" required placeholder="Ex: 77 118 39 54">
             </div>
 
             <div class="form-group full-width">
               <label for="address">Adresse exacte de Livraison (Dakar) *</label>
-              <input type="text" id="address" name="address" [(ngModel)]="customerAddress" required placeholder="Ex: Mermoz, Rue MZ 55, Dakar">
+              <input type="text" id="address" name="address" [(ngModel)]="customerAddress" required placeholder="Ex: Amitié 2, Villa 412, Dakar">
             </div>
 
             <div class="form-group">
@@ -57,7 +57,7 @@ import { Kit } from '../../models/kit.model';
           </div>
 
           <button type="submit" class="btn-submit">
-            🚀 Confirmer ma Commande ({{ totalPrice() }} FCFA)
+            🚀 Confirmer ma Commande via WhatsApp ({{ totalPrice() }} FCFA)
           </button>
         </form>
       </div>
@@ -89,29 +89,30 @@ import { Kit } from '../../models/kit.model';
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
       .full-width { grid-column: span 1; }
+      .form-container { padding: 20px; }
     }
   `]
 })
 export class OrderFormComponent {
-  // Déclaration de l'input Signal provenant du composant parent
+  // Entrée réactive Signal provenant de la sélection du catalogue
   selectedKitForForm = input<Kit | null>(null);
 
-  // Signaux pour la gestion de la quantité et des champs du formulaire
+  // Signaux d'état pour les champs du formulaire
   quantity = signal<number>(1);
   customerName = '';
   customerPhone = '';
   customerAddress = '';
 
-  // Effet pour réinitialiser la quantité à 1 à chaque fois qu'un nouveau plat est sélectionné
   constructor() {
+    // Réinitialise le nombre de parts à 1 à chaque fois qu'un nouveau plat est sélectionné
     effect(() => {
       if (this.selectedKitForForm()) {
-        this.quantity.set(1); // Optionnel : remet à 1 dès qu'on change de plat
+        this.quantity.set(1);
       }
     }, { allowSignalWrites: true });
   }
 
-  // Calcul du prix total automatique et réactif grâce à computed()
+  // Calcul du prix total synchronisé en temps réel
   totalPrice = computed(() => {
     const kit = this.selectedKitForForm();
     if (!kit) return 0;
@@ -124,18 +125,31 @@ export class OrderFormComponent {
       return;
     }
 
-    const orderData = {
-      kit: this.selectedKitForForm(),
-      quantity: this.quantity(),
-      totalPrice: this.totalPrice(),
-      customerName: this.customerName,
-      customerPhone: this.customerPhone,
-      customerAddress: this.customerAddress
-    };
+    if (!this.customerName || !this.customerPhone || !this.customerAddress) {
+      alert('Veuillez remplir tous les champs obligatoires (*).');
+      return;
+    }
 
-    console.log('Commande soumise avec succès :', orderData);
-    alert(`Merci ${orderData.customerName} ! Votre commande de ${orderData.quantity}x ${orderData.kit?.title} a été prise en compte (${orderData.totalPrice} FCFA).`);
-    
-    // Logique de réinitialisation si nécessaire
+    const kitTitle = this.selectedKitForForm()?.title;
+    const qte = this.quantity();
+    const total = this.totalPrice();
+
+    // Construction du modèle textuel pour la commande WhatsApp
+    const message = `• *NOUVELLE COMMANDE SA NDUGU* •\n\n` +
+                    `*Client :* ${this.customerName}\n` +
+                    `*Téléphone :* ${this.customerPhone}\n` +
+                    `*Adresse :* ${this.customerAddress}\n\n` +
+                    `--- *DÉTAIL DU PANIER* ---\n` +
+                    `*Plat :* ${kitTitle}\n` +
+                    `*Nombre de parts :* ${qte} personne(s)\n\n` +
+                    `💰 *Montant Total :* ${total} FCFA\n\n` +
+                    `Merci de valider ma commande !`;
+
+    // Nouveau numéro de téléphone configuré (77 118 39 54)
+    const phoneNumber = '221771183954';
+
+    // Génération de l'URL sécurisée et redirection
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   }
 }
