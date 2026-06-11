@@ -37,6 +37,11 @@ import { Kit } from '../../models/kit.model';
             </div>
 
             <div class="form-group">
+              <label for="deliveryDate">Date de Livraison Souhaitée *</label>
+              <input type="date" id="deliveryDate" name="deliveryDate" [(ngModel)]="deliveryDate" required>
+            </div>
+
+            <div class="form-group">
               <label for="persons">Nombre de personnes (Parts) *</label>
               <input 
                 type="number" 
@@ -48,7 +53,7 @@ import { Kit } from '../../models/kit.model';
                 required>
             </div>
 
-            <div class="form-group summary-group">
+            <div class="form-group full-width summary-group">
               <label>Montant Total à Payer</label>
               <div class="total-price-box">
                 {{ totalPrice() }} FCFA
@@ -102,6 +107,7 @@ export class OrderFormComponent {
   customerName = '';
   customerPhone = '';
   customerAddress = '';
+  deliveryDate = ''; // Variable ajoutée pour stocker la date sélectionnée
 
   constructor() {
     // Réinitialise le nombre de parts à 1 à chaque fois qu'un nouveau plat est sélectionné
@@ -119,13 +125,23 @@ export class OrderFormComponent {
     return kit.basePricePerPerson * this.quantity();
   });
 
+  // Fonction utilitaire pour formater la date (AAAA-MM-JJ -> JJ/MM/AAAA) pour le message
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
   onSubmit() {
     if (!this.selectedKitForForm()) {
       alert('Veuillez sélectionner un kit de plat dans le catalogue d’abord.');
       return;
     }
 
-    if (!this.customerName || !this.customerPhone || !this.customerAddress) {
+    if (!this.customerName || !this.customerPhone || !this.customerAddress || !this.deliveryDate) {
       alert('Veuillez remplir tous les champs obligatoires (*).');
       return;
     }
@@ -133,22 +149,24 @@ export class OrderFormComponent {
     const kitTitle = this.selectedKitForForm()?.title;
     const qte = this.quantity();
     const total = this.totalPrice();
+    const formattedDate = this.formatDate(this.deliveryDate);
 
-    // Construction du modèle textuel pour la commande WhatsApp
+    // Construction du modèle textuel intégrant désormais la date souhaitée
     const message = `• *NOUVELLE COMMANDE SA NDUGU* •\n\n` +
                     `*Client :* ${this.customerName}\n` +
                     `*Téléphone :* ${this.customerPhone}\n` +
-                    `*Adresse :* ${this.customerAddress}\n\n` +
+                    `*Adresse :* ${this.customerAddress}\n` +
+                    `*Date de livraison :* ${formattedDate}\n\n` +
                     `--- *DÉTAIL DU PANIER* ---\n` +
                     `*Plat :* ${kitTitle}\n` +
                     `*Nombre de parts :* ${qte} personne(s)\n\n` +
                     `💰 *Montant Total :* ${total} FCFA\n\n` +
                     `Merci de valider ma commande !`;
 
-    // Nouveau numéro de téléphone configuré (77 118 39 54)
+    // Numéro de téléphone configuré (77 118 39 54)
     const phoneNumber = '221771183954';
 
-    // Génération de l'URL sécurisée et redirection
+    // Génération de l'URL sécurisée et redirection vers WhatsApp
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   }
